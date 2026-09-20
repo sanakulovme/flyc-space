@@ -102,8 +102,16 @@ Requires WebGL2.
 
 ## SEO and metadata
 
-The page is published at <https://flyc.space/>. Search and social metadata
-lives in the `<head>` of `index.html`:
+The page is published at <https://www.flyc.space/>. Note the `www`: the host
+answers `https://flyc.space/` with a `308` redirect to the `www` form, so
+every URL in the metadata uses `www` to match. Pointing `og:image` at a
+redirecting URL is the one that actually bites — several social scrapers
+refuse to follow it and the preview silently shows nothing.
+
+If you would rather use the bare domain, flip the redirect at your host first,
+then swap the URLs back here. Do not let the two disagree.
+
+Search and social metadata lives in the `<head>` of `index.html`:
 
 - Title (56 chars) and description (145 chars), both inside what Google
   actually shows in results.
@@ -119,7 +127,7 @@ A canvas is opaque to crawlers, so the **About** dialog (the `i` button, or
 press `I`) carries ~380 words of real prose about the physics. It is ordinary
 visible content — no hidden text.
 
-If the domain ever changes, update `https://flyc.space/` in `index.html`
+If the domain ever changes, update `https://www.flyc.space/` in `index.html`
 (canonical, `og:url`, `og:image`, `twitter:image`, JSON-LD), in `robots.txt`
 and in `sitemap.xml`.
 

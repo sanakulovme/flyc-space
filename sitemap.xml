@@ -2,12 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://flyc.space/</loc>
+    <loc>https://www.flyc.space/</loc>
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://flyc.space/og-image.jpg</image:loc>
+      <image:loc>https://www.flyc.space/og-image.jpg</image:loc>
       <image:title>Interactive Black Hole Simulator</image:title>
       <image:caption>A Schwarzschild black hole with its accretion disk bent over the top by gravitational lensing.</image:caption>
     </image:image>
