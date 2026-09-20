@@ -3,8 +3,86 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<title>Interactive Black Hole Simulator &mdash; Gravitational Lensing</title>
+<meta name="description" content="Explore a Schwarzschild black hole in real time: accurate gravitational lensing, the photon ring, Doppler beaming and a turbulent accretion disk.">
+<meta name="keywords" content="black hole simulator, gravitational lensing, Schwarzschild black hole, accretion disk, photon ring, event horizon, Doppler beaming, general relativity, ray tracing, WebGL, interactive physics">
+<link rel="canonical" href="https://flyc.space/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+
+<!-- authorship / rights -->
 <meta name="author" content="@abbosby">
-<title>Black Hole</title>
+<meta name="copyright" content="&copy; 2026 @abbosby. All rights reserved.">
+<meta name="rights" content="&copy; 2026 @abbosby. All rights reserved.">
+<link rel="license" href="https://flyc.space/LICENSE">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="flyc.space">
+<meta property="og:url" content="https://flyc.space/">
+<meta property="og:title" content="Interactive Black Hole Simulator &mdash; Gravitational Lensing">
+<meta property="og:description" content="A Schwarzschild black hole ray traced live in your browser: real gravitational lensing, the photon ring, Doppler beaming and a turbulent accretion disk. Drag to orbit, scroll to zoom.">
+<meta property="og:image" content="https://flyc.space/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A black hole with its accretion disk bent over the top by gravitational lensing.">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="https://x.com/abbosby">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@abbosby">
+<meta name="twitter:creator" content="@abbosby">
+<meta name="twitter:title" content="Interactive Black Hole Simulator">
+<meta name="twitter:description" content="A Schwarzschild black hole ray traced live in your browser: real gravitational lensing, the photon ring and Doppler beaming. Drag to orbit, scroll to zoom.">
+<meta name="twitter:image" content="https://flyc.space/og-image.jpg">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cellipse cx='16' cy='16' rx='14.5' ry='4' fill='none' stroke='%23e8a06a' stroke-width='2.6'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='7.7' fill='none' stroke='%23ffdcbb' stroke-width='0.9'/%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Interactive Black Hole Simulator",
+  "alternateName": "Schwarzschild Black Hole",
+  "url": "https://flyc.space/",
+  "description": "A Schwarzschild black hole ray traced in real time through curved spacetime, with gravitational lensing, the photon ring, relativistic Doppler beaming and a turbulent accretion disk.",
+  "applicationCategory": "EducationalApplication",
+  "applicationSubCategory": "Physics simulation",
+  "operatingSystem": "Any browser with WebGL2",
+  "browserRequirements": "Requires WebGL2",
+  "inLanguage": "en",
+  "isFamilyFriendly": true,
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "screenshot": "https://flyc.space/og-image.jpg",
+  "image": "https://flyc.space/og-image.jpg",
+  "datePublished": "2026-09-20",
+  "author": {
+    "@type": "Person",
+    "name": "@abbosby",
+    "url": "https://x.com/abbosby",
+    "sameAs": ["https://x.com/abbosby"]
+  },
+  "creator": {
+    "@type": "Person",
+    "name": "@abbosby",
+    "url": "https://x.com/abbosby"
+  },
+  "copyrightHolder": {
+    "@type": "Person",
+    "name": "@abbosby",
+    "url": "https://x.com/abbosby"
+  },
+  "copyrightYear": 2026,
+  "copyrightNotice": "© 2026 @abbosby. All rights reserved.",
+  "license": "https://flyc.space/LICENSE",
+  "usageInfo": "https://flyc.space/LICENSE",
+  "keywords": "black hole, gravitational lensing, Schwarzschild, accretion disk, photon ring, event horizon, Doppler beaming, general relativity, ray tracing, WebGL"
+}
+</script>
 <style>
   :root{
     --panel: rgba(16,17,20,.72);
@@ -92,6 +170,36 @@
   .chk.on .sw::after{transform:translateX(15px)}
   .hr{height:1px;background:var(--line);margin:12px -14px}
 
+  /* about dialog */
+  #scrim{position:fixed;inset:0;z-index:8;background:rgba(0,0,0,.6);
+         opacity:0;pointer-events:none;transition:opacity .22s ease}
+  #scrim.open{opacity:1;pointer-events:auto}
+  #about{position:fixed;z-index:9;left:50%;top:50%;
+         transform:translate(-50%,-46%) scale(.98);
+         width:min(620px,calc(100vw - 26px));max-height:min(80vh,780px);overflow-y:auto;
+         padding:24px 28px 22px;opacity:0;pointer-events:none;
+         transition:opacity .22s ease, transform .22s cubic-bezier(.22,.9,.3,1)}
+  #about.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+  #about h2{margin:0 0 4px;font-size:19px;font-weight:600;letter-spacing:-.01em}
+  #about h3{margin:20px 0 6px;font-size:12px;font-weight:600;letter-spacing:.07em;
+            text-transform:uppercase;color:var(--accent)}
+  #about p{margin:0 0 10px;font-size:13px;line-height:1.62;color:#cfd2d6}
+  #about ul{margin:0;padding:0 0 0 2px;list-style:none}
+  #about li{font-size:13px;line-height:1.6;color:#cfd2d6;padding:5px 0 5px 15px;position:relative}
+  #about li::before{content:"";position:absolute;left:0;top:12px;width:5px;height:5px;
+                    border-radius:50%;background:var(--accent);opacity:.75}
+  #about b{color:var(--text);font-weight:600}
+  #about code{font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+              background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;color:#ffd0a8}
+  #about a{color:var(--accent);text-decoration:none}
+  #about a:hover{text-decoration:underline}
+  #about .rights{margin:20px 0 0;padding-top:14px;border-top:1px solid var(--line);
+                 font-size:11.5px;color:var(--dim)}
+  #aboutX{position:absolute;top:14px;right:16px;width:28px;height:28px;border:0;border-radius:50%;
+          background:rgba(255,255,255,.08);color:var(--dim);font-size:17px;line-height:1;
+          cursor:pointer;transition:.13s}
+  #aboutX:hover{background:rgba(255,255,255,.16);color:var(--text)}
+
   /* hints + toast */
   #hint{left:50%;bottom:22px;transform:translateX(-50%);padding:8px 14px;display:flex;gap:16px;font-size:11px;color:var(--dim);
         white-space:nowrap;transition:opacity .5s ease}
@@ -148,6 +256,7 @@
     <div class="btn" id="sound" title="Ambient sound (M)"><svg viewBox="0 0 24 24"><path d="M4.5 9.5h3L11.5 6v12L7.5 14.5h-3z"/><g class="waves"><path d="M15 9.6a4.2 4.2 0 0 1 0 4.8"/><path d="M17.6 7.2a8 8 0 0 1 0 9.6"/></g><g class="mute"><path d="M15.6 10.2l4.2 3.6M19.8 10.2l-4.2 3.6"/></g></svg></div>
     <div class="btn" id="shot" title="Save PNG (P)"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></div>
     <div class="btn" id="full" title="Fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></div>
+    <div class="btn" id="info" title="About (I)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10.8v5.4"/><path d="M12 7.7v.1"/></svg></div>
     <div class="btn" id="gear" title="Settings (S)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.2v2.1M12 18.7v2.1M3.2 12h2.1M18.7 12h2.1M5.8 5.8l1.5 1.5M16.7 16.7l1.5 1.5M18.2 5.8l-1.5 1.5M7.3 16.7l-1.5 1.5"/></svg></div>
   </div>
 </div>
@@ -161,6 +270,53 @@
 </div>
 
 <div id="toast" class="ui panel"></div>
+
+<div id="scrim"></div>
+<article id="about" class="panel" aria-label="About this black hole simulation">
+  <button id="aboutX" aria-label="Close">&times;</button>
+  <h2>A black hole, ray traced in real time</h2>
+  <p>Nothing on this page is a texture or a pre-rendered animation. Every pixel is a
+  ray of light traced <em>backwards</em> through the curved spacetime around a
+  Schwarzschild black hole, until it either falls through the event horizon, strikes
+  the accretion disk, or escapes to the stars behind it.</p>
+
+  <h3>What you are looking at</h3>
+  <ul>
+    <li><b>The shadow.</b> The black disc is roughly 2.6 Schwarzschild radii across &mdash;
+    noticeably larger than the event horizon itself, because light passing nearby is
+    bent into the hole and never reaches you.</li>
+    <li><b>The ring arcing over the top.</b> That is the <em>far</em> side of the disk.
+    Light leaving the gas behind the black hole is bent up and over toward your eye, so
+    a perfectly flat disk appears folded upward. The arc underneath is the same effect
+    seen from below.</li>
+    <li><b>The thin bright circle.</b> The photon ring: light that orbited the black hole
+    one or more times before escaping in your direction.</li>
+    <li><b>The brighter side.</b> Gas approaching you is Doppler boosted and blue shifted,
+    while the receding side dims and reddens. The famous <em>Interstellar</em> frame left
+    this effect out, which is why that image looks symmetric.</li>
+  </ul>
+
+  <h3>How it works</h3>
+  <p>Null geodesics are integrated in Cartesian coordinates using each ray's conserved
+  angular momentum <code>h = |x &times; v|</code>, giving
+  <code>d&sup2;x/d&lambda;&sup2; = -1.5 &middot; r&#8347; &middot; h&sup2; &middot; x / r&#8309;</code>.
+  The step length is proportional to the distance from the horizon, so the path is
+  resolved finely where spacetime bends hard and strides forward where it is flat.</p>
+  <p>The accretion disk is a plane at the equator, and every crossing is solved for
+  exactly, which is what makes the multiple lensed images appear on their own. Each
+  crossing is shaded as an emitting and absorbing slab with relativistic Doppler and
+  gravitational redshift, then the gas is sheared at Keplerian speed
+  (&omega; &prop; r<sup>-3/2</sup>) so the turbulence winds into trailing filaments.</p>
+
+  <h3>Controls</h3>
+  <p>Drag to orbit, right-drag to pan, scroll or pinch to zoom, double-click to zoom in.
+  The compass resets your bearing and the slider beside the zoom buttons controls tilt,
+  from edge-on to straight down. Press <code>H</code> to hide the interface and
+  <code>P</code> to save a PNG.</p>
+
+  <p class="rights">&copy; 2026 <a href="https://x.com/abbosby" target="_blank" rel="noopener noreferrer">@abbosby</a>.
+  All rights reserved. Built with WebGL2.</p>
+</article>
 
 <div id="settings" class="ui panel">
   <h2>View</h2>
@@ -739,6 +895,8 @@ addEventListener('keydown', e => {
   else if (k === 's') ui.settings.classList.toggle('open');
   else if (k === 'o') toggleOrbit();
   else if (k === 'm') setSound(!sndOn);
+  else if (k === 'i') showAbout(!ui.about.classList.contains('open'));
+  else if (k === 'escape') { showAbout(false); ui.settings.classList.remove('open'); }
   else if (k === 'p') pendingShot = true;
   else if (k === 'h') document.querySelectorAll('.ui').forEach(n => { n.style.display = n.style.display === 'none' ? '' : 'none'; });
   else return;
@@ -749,7 +907,7 @@ addEventListener('keydown', e => {
 const ui = {};
 ['hud','oDist','oTilt','oBear','oDil','oFps','settings','gear','zin','zout','compass','compassRot',
  'orbit','shot','full','hint','toast','tilt','tiltwrap','presets','qual','cAuto','cHint',
- 'sound','sVol','vVol',
+ 'sound','sVol','vVol','info','about','aboutX','scrim',
  'sFov','vFov','sExp','vExp','sBloom','vBloom','sBri','vBri','sIn','vIn','sOut','vOut',
  'sTurb','vTurb','sOpa','vOpa','sSpin','vSpin','sLens','vLens','sDop','vDop','sStar','vStar'
 ].forEach(id => { ui[id] = document.getElementById(id); });
@@ -812,6 +970,15 @@ toggleChk(ui.cAuto, 'adaptive', () => { dynScale = 1; resize(true); });
 toggleChk(ui.cHint, 'hints', () => ui.hint.classList.toggle('gone', !P.hints));
 
 ui.gear.addEventListener('click', () => ui.settings.classList.toggle('open'));
+
+function showAbout(on) {
+  ui.about.classList.toggle('open', on);
+  ui.scrim.classList.toggle('open', on);
+  ui.info.classList.toggle('on', on);
+}
+ui.info.addEventListener('click', () => showAbout(!ui.about.classList.contains('open')));
+ui.aboutX.addEventListener('click', () => showAbout(false));
+ui.scrim.addEventListener('click', () => showAbout(false));
 ui.zin.addEventListener('click',  () => zoomBy(0.72));
 ui.zout.addEventListener('click', () => zoomBy(1.38));
 ui.compass.addEventListener('click', resetBearing);

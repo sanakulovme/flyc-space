@@ -100,6 +100,39 @@ the top left shows fps and the actual render resolution.
 
 Requires WebGL2.
 
+## SEO and metadata
+
+The page is published at <https://flyc.space/>. Search and social metadata
+lives in the `<head>` of `index.html`:
+
+- Title (56 chars) and description (145 chars), both inside what Google
+  actually shows in results.
+- `canonical`, `robots` (`max-image-preview:large`), `theme-color` and an
+  inline SVG favicon — no extra file requests.
+- Open Graph and Twitter/X cards pointing at `og-image.jpg`
+  (1200&times;630, a real frame from the renderer).
+- JSON-LD `WebApplication` structured data carrying the author, the
+  copyright holder, the copyright notice and the licence URL.
+- `robots.txt` and `sitemap.xml`, including an image entry for the preview.
+
+A canvas is opaque to crawlers, so the **About** dialog (the `i` button, or
+press `I`) carries ~380 words of real prose about the physics. It is ordinary
+visible content — no hidden text.
+
+If the domain ever changes, update `https://flyc.space/` in `index.html`
+(canonical, `og:url`, `og:image`, `twitter:image`, JSON-LD), in `robots.txt`
+and in `sitemap.xml`.
+
+To regenerate the preview image: open the site, press `H` to hide the
+interface, frame the shot, then `P` to save a PNG — or re-run the capture at
+exactly 1200&times;630.
+
+## Copyright
+
+&copy; 2026 [@abbosby](https://x.com/abbosby). All rights reserved. See
+[LICENSE](LICENSE) — no permission is granted to copy, modify, host or
+redistribute this work without written permission.
+
 ## Running it
 
 Double-click `index.html`. If your browser ever refuses to load `sound.mp3`
