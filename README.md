@@ -127,6 +127,41 @@ To regenerate the preview image: open the site, press `H` to hide the
 interface, frame the shot, then `P` to save a PNG — or re-run the capture at
 exactly 1200&times;630.
 
+## Analytics
+
+Google Analytics 4 is wired up in the `<head>` of `index.html`. The
+Measurement ID sits on its own line:
+
+```js
+window.GA_MEASUREMENT_ID = 'G-6NWY16T3LQ';
+```
+
+Empty it and nothing is downloaded and no cookie is set. `file://` pages,
+`localhost` and `127.0.0.1` are skipped too, so local testing stays out of
+the reports.
+
+One URL means plain GA would only ever tell you that somebody arrived, so the
+page also reports what visitors actually do:
+
+| Event | Fired when | Parameters |
+| --- | --- | --- |
+| `select_preset` | A camera preset is chosen | `preset` |
+| `set_quality` | Quality tier changed | `level` |
+| `toggle_sound` | Ambient sound on/off | `state` |
+| `toggle_auto_orbit` | Auto-orbit on/off | `state` |
+| `open_about` | About dialog opened | — |
+| `toggle_fullscreen` | Fullscreen pressed | — |
+| `save_png` | A PNG is saved | `resolution` |
+| `render_perf` | Once per visit, after ~8s of real rendering | `fps`, `resolution`, `quality`, `gpu` |
+
+`render_perf` is the useful one: it reports from inside the render loop
+rather than from a timer, so the frame rate reflects frames the visitor
+actually saw. A timer would also fire in a backgrounded tab, where
+`requestAnimationFrame` is parked and any measured frame rate is fiction.
+
+Custom events need no setup in GA — they appear under *Reports → Engagement →
+Events* within about 24 hours, and immediately in *Realtime* and *DebugView*.
+
 ## Copyright
 
 &copy; 2026 [@abbosby](https://x.com/abbosby). All rights reserved. See
