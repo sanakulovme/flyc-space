@@ -1,5 +1,7 @@
 # Black Hole
 
+Powered by [@abbosby](https://x.com/abbosby)
+
 A real-time, physically-based Schwarzschild black hole in a single HTML file.
 Open `index.html` in any modern browser — no build, no server, no dependencies.
 
@@ -21,7 +23,7 @@ horizon, hits the accretion disk, or escapes to the stars.
 | `R` | Reset bearing and tilt |
 | `O` | Auto-orbit |
 | `M` | Ambient sound on/off |
-| `P` | Save a PNG |
+| `P` | Save a PNG (stamped `x.com/abbosby`) |
 | `F` | Fullscreen |
 | `S` | Settings |
 | `H` | Hide the interface |
