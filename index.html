@@ -368,7 +368,8 @@ void main(){
 
   vec3  col   = vec3(0.0);
   float trans = 1.0;
-  bool  caught = false;
+  bool  caught  = false;
+  bool  settled = false;   /* did the ray actually finish? */
 
   for (int i = 0; i < 1024; i++){
     if (i >= uSteps) break;
@@ -376,17 +377,19 @@ void main(){
     float r2 = dot(p, p);
     float r  = sqrt(r2);
 
-    if (r < RS * 1.003){ caught = true; break; }
-    if (r > far && dot(p, v) > 0.0) break;
+    if (r < RS * 1.003){ caught = true; settled = true; break; }
+    if (r > far && dot(p, v) > 0.0){ settled = true; break; }
 
-    /* adaptive step: fine where curvature and the disk live, long strides
-       once the ray is far outside - never long enough to skip back in.   */
+    /* Adaptive step, proportional to the distance from the horizon: tiny at
+       the photon sphere where the path bends hard, metres-long out where
+       spacetime is flat. Turning ~0.03 rad per step at worst.            */
     float outer = uDiskOut * 2.5;
-    float lim = 0.9;
-    if (r > outer) lim = (dot(p, v) > 0.0) ? 30.0 : max(0.9, (r - outer) * 0.35);
-    float dt = clamp(0.05 * (r - RS * 0.95), 0.015, lim) * (i == 0 ? jit : 1.0);
+    float dt = clamp(0.085 * (r - RS * 0.92), 0.02, 6.0);
+    if (r > outer) dt = (dot(p, v) > 0.0) ? min(dt * 6.0, 40.0)
+                                          : min(dt, max(0.9, (r - outer) * 0.35));
+    dt *= (i == 0 ? jit : 1.0);
     float ay = abs(p.y);
-    if (ay < 0.8 && r < uDiskOut * 1.25) dt = min(dt, 0.45);   /* keep grazing rays honest */
+    if (ay < 0.5 && r < uDiskOut * 1.25) dt = min(dt, 0.8);   /* keep grazing rays honest */
 
     /* d2x/dl2 = -1.5 * rs * h2 * x / r^5   (null geodesic, Schwarzschild) */
     vec3 acc = -1.5 * RS * h2 * p / (r2 * r2 * r);
@@ -409,7 +412,10 @@ void main(){
     if (trans < 0.003) break;
   }
 
-  if (!caught) col += trans * skyColor(normalize(v));
+  /* A ray that used up its whole budget is still near the hole and almost
+     certainly bound, so leave it dark. Sampling the sky instead would punch
+     a star-filled hole through the shadow and eat the lensed disk.      */
+  if (!caught && settled) col += trans * skyColor(normalize(v));
   outColor = vec4(col, 1.0);
 }`;
 
@@ -656,7 +662,7 @@ let pendingShot = false;
 
 cv.addEventListener('contextmenu', e => e.preventDefault());
 cv.addEventListener('pointerdown', e => {
-  cv.setPointerCapture(e.pointerId);
+  try { cv.setPointerCapture(e.pointerId); } catch (err) { /* keep dragging anyway */ }
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   hideHints();
   if (ptrs.size === 1) {
@@ -949,7 +955,9 @@ function render(now) {
   const fit = Math.min(1, (W / H) / 1.6);
   gl.uniform1f(u.uFovScale, fit / Math.tan(cur.fov * Math.PI / 360));
   gl.uniform1f(u.uTime, simTime);
-  gl.uniform1i(u.uSteps, Math.round(QUALITY[P.quality].steps * (interacting ? 0.72 : 1)));
+  /* Never trade steps for speed while dragging - that changes the geometry
+     itself. Resolution is the safe lever, and it already scales. */
+  gl.uniform1i(u.uSteps, QUALITY[P.quality].steps);
   gl.uniform1f(u.uDiskIn, P.dIn * RS);
   gl.uniform1f(u.uDiskOut, P.dOut * RS);
   gl.uniform1f(u.uDiskBright, P.bright);

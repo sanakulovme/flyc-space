@@ -87,7 +87,12 @@ blackbody-ish colour ramp, HDR bloom, ACES tonemapping.
 It is a ray marcher, so cost scales with pixels × steps. The quality presets
 trade step count against resolution, and *Adaptive resolution* (on by default)
 keeps the frame rate near 60 by scaling the render buffer between 42% and
-100%; resolution also drops while you drag. If it feels heavy, drop to
+100% based on measured frame time.
+
+Resolution is the only thing that flexes. Step count never drops while you
+drag, because the step budget *is* the geometry: starve it and rays near the
+hole stop mid-flight, which punches a star-filled black blob through the
+shadow and eats the lensed far side of the disk. If it feels heavy, drop to
 **Medium** or **Low** in Settings, or shrink the window. The live readout in
 the top left shows fps and the actual render resolution.
 
